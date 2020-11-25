@@ -1,0 +1,7 @@
+.ipynb_checkpoints
+.venv
+env/
+venv/
+keys/
+Contract/
+.pages
