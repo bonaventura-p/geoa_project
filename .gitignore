@@ -4,4 +4,4 @@ env/
 venv/
 keys/
 Contract/
-.pages
+*.pages
