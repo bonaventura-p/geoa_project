@@ -1,6 +1,16 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
+import twint
+
+# import inspect as i
+# import sys
+#
+# sys.stdout.write(i.getsource(MyFunction))
+
+
+def available_columns():
+    return twint.output.panda.Tweets_df.columns
 
 def GSheetClient(
         gref:str,
