@@ -1,0 +1,4 @@
+pandas
+twint
+gspread >= 3.6.0
+oauth2client >= 4.1.3
