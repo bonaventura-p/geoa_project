@@ -4,5 +4,6 @@ env/
 venv/
 keys/
 Contract/
-*.pages
 data/
+notes/
+.pages

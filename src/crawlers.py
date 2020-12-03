@@ -1,24 +1,70 @@
 import twint
 import pandas as pd
 
-#create functions for 1) followers+ their tweers and 2) keywords based search
 
-def KeywordSearcher(keywords:list):
+
+def FollowerCounter(
+        user:str,
+        ind:int
+):
+
+    c = twint.Config()
+    c.Username = user
+    c.Hide_output = True
+    c.Store_object = True
+
+    twint.run.Lookup(c)
+
+    return twint.output.users_list[ind].followers
+
+
+
+def QueryRunner(
+        query:str,
+        limit:int,
+        date:str,
+        near = False
+):
+    attrs = ["id",
+             "created_at",
+             'language',
+             "user_id",
+             "username",
+             "tweet",
+             "urls",
+             "nreplies",
+             "nretweets",
+             "nlikes",
+             "hashtags",
+             "link",
+             'reply_to', #and then screen_name
+             "near",
+             "geo",
+             "source"]
 
     c = twint.Config()
 
-    c.Search = user
+    c.Search = query
     c.Pandas = True
     c.Hide_output = True
-    c.Limit = 3000  # 1 = 100
+    c.Limit = limit  # 1 = 100
+    c.Near = near
+    c.Since = date #yyyy-mm-dd
+
     twint.run.Search(c)
 
-    df_pd = twint_to_pandas(attrs)
+    if twint.output.panda.Tweets_df.shape[0] == 0:
+        print("No tweets retrieved for {}. Returning an empty dataframe".format(query))
+        df_pd = pd.DataFrame()
+    else:
+        df_pd = twint_to_pandas(attrs)
 
     return df_pd
 
 
-def TweetSearcher(user:str):
+def TweetSearcher(
+        user:str
+):
 
     attrs = ["id",
              "created_at",
@@ -32,6 +78,7 @@ def TweetSearcher(user:str):
              "nlikes",
              "hashtags",
              "link",
+             'reply_to',
              "near",
              "geo",
              "source"]
@@ -54,67 +101,3 @@ def twint_to_pandas(columns):
 
 
 
-
-
-
-####Old
-#buggy users:
-# 113 @IyoNoma
-# buggy_list = [113]
-
-# for i, row in enumerate(df.tw_name):
-#
-#     #make it from a certain number up
-#     if  i < n_users:
-#         if (len(row) > 0) & (i is not in buggy_list):
-#             print(i, row)
-#             output_name = 'data/'+ row.replace("@","")+'_tweets.csv'
-#             TweetSearcher(user=row.replace("@",""), output=output_name)
-#
-#         else:
-#             pass
-#     else:
-#         break
-# def TweetSearcher_old(
-#         user:str,
-#         output:str
-# ):
-#
-#     attrs = ["id",
-#         "created_at",
-#         "user_id",
-#         "username",
-#         "tweet",
-#         "mentions",
-#         "urls",
-#         "replies_count",
-#         "retweets_count",
-#         "likes_count",
-#         "hashtags",
-#         "link",
-#         "near",
-#         "geo",
-#         "source"]
-#
-#     c = twint.Config()
-#     c.Username = user
-#     c.Custom["tweet"] = attrs
-#
-#     c.Output = output
-#
-#     # if output.endswith('csv'):
-#     #     c.Store_csv == True
-#     # elif output.endswith('json'):
-#     #     c.Store_json == True
-#     # else:
-#     #     c.Store_object == True
-#
-#     c.Store_csv == True
-#     c.Hide_output = True
-#     c.Limit = 2 #increments of 100 so limit=1 retrieves 100
-#
-#     return twint.run.Search(c)
-#
-#
-#
-#

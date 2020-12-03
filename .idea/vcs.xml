@@ -5,6 +5,9 @@
     <mapping directory="$PROJECT_DIR$/Codes/scrappers/FacebookPostsScraper" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Codes/scrappers/fbarc" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Codes/scrappers/fbarc/src/twint" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/fb/FacebookPostsScraper" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/fb/fbarc" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/fb/fbarc/src/twint" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/scrappers/FacebookPostsScraper" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/scrappers/fbarc" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/scrappers/fbarc/src/twint" vcs="Git" />
