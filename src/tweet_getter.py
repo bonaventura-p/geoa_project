@@ -35,9 +35,12 @@ if arg1 == 'u':
 
 if arg1 == 'q':
     #bazoum from libya?
+
     query_list = ['Issoufou','PNDS','Parti Nigérien pour la Démocratie et le Socialisme','Tarayya','Bazoum',
                   'Lumana','Mouvement démocratique nigérien pour une fédération africain','MODEN-FA','Amadou',
                   'Nassara','Mouvement National pour la Société du Développement','MNSD','Oumarou','Tandja']
+
+    query_list = ['CSRD','parti Justice et Progrès', 'Génération Doubara','Salou Djibo']
 
     query_dict = {
         'limit' : int(500000/len(query_list)),
@@ -93,18 +96,18 @@ if arg1 == 'f':
 
         if i < n_users:
             if (len(user) > 0) & (user not in buggy_list):
-
+                #strip fine because at the beginning
                 follow_count = FollowerCounter(user=user.strip("@"),ind=n)
 
-                df_follow = df_follow.append({'tw_name':user,'tw_followers': follow_count }, ignore_index= True)
-
-                n += 1
+                df_follow = df_follow.append({'tw_name':user.strip("@"),'tw_followers': follow_count }, ignore_index= True)
+                if follow_count > 0:
+                    n += 1
             else:
                 pass
         else:
             break
 
-    csv_name = 'data/follows_' + str(datetime.date.today()).strip("-") + '.csv'
+    csv_name = 'data/follows_' + str(datetime.date.today()).replace("-","") + '.csv'
 
     print("Exporting to csv {}, with shape {}".format(csv_name, df_follow.shape))
 
@@ -199,7 +202,7 @@ if arg1 == 'm':
                 {'author':action[user]['by'], 'action':a, 'target':user, 'count':action[user]['count']},
                 ignore_index=True)
 
-    csv_name = 'data/mention_reply_' + str(datetime.date.today()).strip("-") + '.csv'
+    csv_name = 'data/mention_reply_' + str(datetime.date.today()).replace("-","") + '.csv'
     mention_reply_df.to_csv(csv_name, index=False)
     print("Saved {} with length of {}".format(csv_name,len(mention_reply_df)))
 
@@ -248,7 +251,7 @@ if arg1 == 'geo':
                 pass
 
 
-        csv_name = 'data/{}_geoqueries_'.format(near) + str(datetime.date.today()).strip("-")+'.csv'
+        csv_name = 'data/{}_geoqueries_'.format(near) + str(datetime.date.today()).replace("-","")+'.csv'
 
         print("Exporting to csv {}, with shape {}".format(csv_name, df_queries.shape))
 

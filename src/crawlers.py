@@ -13,10 +13,11 @@ def FollowerCounter(
     c.Hide_output = True
     c.Store_object = True
 
-    twint.run.Lookup(c)
-
-    return twint.output.users_list[ind].followers
-
+    try:
+        twint.run.Lookup(c)
+        return twint.output.users_list[ind].followers
+    except ValueError:
+        return 0
 
 
 def QueryRunner(
