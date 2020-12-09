@@ -6,3 +6,10 @@ bs4
 selenium
 matplotlib
 networkx
+seaborn
+descartes
+geopy
+geopandas
+rtree
+mapclassify
+spacy

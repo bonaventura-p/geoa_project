@@ -1,7 +1,7 @@
 import os
 import sys
 import requests
-from crawlers import TweetSearcher, FollowerCounter, QueryRunner
+from crawlers import TweetSearcher, TwitterLookup, QueryRunner
 from filemanager import GSheetClient, UsersTweetFetcher
 import pandas as pd
 import datetime
@@ -24,6 +24,16 @@ df_gsheet = GSheetClient(
 )
 print('Google Sheet converted to dataframe.....')
 
+query_list = ['presidentielles', 'CSRD', 'parti Justice et Progrès', 'Génération Doubara', 'Salou Djibo',
+              'Issoufou', 'PNDS', 'Parti Nigérien pour la Démocratie et le Socialisme', 'Tarayya', 'Bazoum',
+              'Lumana', 'Mouvement démocratique nigérien pour une fédération africain', 'MODEN-FA', 'Amadou',
+              'Nassara', 'Mouvement National pour la Société du Développement', 'MNSD', 'Oumarou', 'Tandja']
+
+query_dict = {
+    'limit': int(50000 / len(query_list)),
+    'date': '2020-01-01'
+}
+
 
 if arg1 == 'u':
     # Task 1
@@ -36,16 +46,7 @@ if arg1 == 'u':
 if arg1 == 'q':
     #bazoum from libya?
 
-    query_list = ['Issoufou','PNDS','Parti Nigérien pour la Démocratie et le Socialisme','Tarayya','Bazoum',
-                  'Lumana','Mouvement démocratique nigérien pour une fédération africain','MODEN-FA','Amadou',
-                  'Nassara','Mouvement National pour la Société du Développement','MNSD','Oumarou','Tandja']
 
-    query_list = ['CSRD','parti Justice et Progrès', 'Génération Doubara','Salou Djibo']
-
-    query_dict = {
-        'limit' : int(500000/len(query_list)),
-        'date' : '2020-01-01'
-    }
 
     buggy_list = ['Lumana']
 
@@ -73,7 +74,7 @@ if arg1 == 'q':
             pass
 
 
-    csv_name = 'data/queries_'+str(datetime.date.today()).strip("-")+'.csv'
+    csv_name = 'data/queries_'+str(datetime.date.today()).replace("-","")+'.csv'
 
     print("Exporting to csv {}, with shape {}".format(csv_name, df_queries.shape))
 
@@ -85,7 +86,7 @@ if arg1 == 'f':
 
     n_users = 500
 
-    df_follow = pd.DataFrame(columns=['tw_name','tw_followers'])
+    df_follow = pd.DataFrame(columns=['tw_name','tweets', 'tw_followers','tw_following'])
     buggy_list = []
     n=0
 
@@ -96,11 +97,11 @@ if arg1 == 'f':
 
         if i < n_users:
             if (len(user) > 0) & (user not in buggy_list):
-                #strip fine because at the beginning
-                follow_count = FollowerCounter(user=user.strip("@"),ind=n)
+                #strip fine because @ is at the beginning
+                tweets,followers,following = TwitterLookup(user=user.strip("@"),ind=n)
 
-                df_follow = df_follow.append({'tw_name':user.strip("@"),'tw_followers': follow_count }, ignore_index= True)
-                if follow_count > 0:
+                df_follow = df_follow.append({'tw_name':user.strip("@"),'tweets':tweets,'tw_followers': followers, 'tw_following':following}, ignore_index= True)
+                if (tweets > 0)|(followers > 0)|(following > 0):
                     n += 1
             else:
                 pass
@@ -210,20 +211,13 @@ if arg1 == 'm':
 if arg1 == 'geo':
 
     # near_list = ['Niger','Niamey','Agadez','Maradi', 'Zinder']
-    near_list = ['Agadez','Maradi', 'Zinder']
+    near_list = ['Niger','Niamey', 'Agadez', 'Maradi', 'Zinder', 'Diffa', 'Dosso', 'Tahoua',
+       'Tillabéri']
 
-    query_list = ['presidentielles','municipales','','Issoufou','PNDS','Parti Nigérien pour la Démocratie et le Socialisme','Tarayya','Bazoum',
-                  'Lumana','Mouvement démocratique nigérien pour une fédération africain','MODEN-FA','Amadou',
-                  'Nassara','Mouvement National pour la Société du Développement','MNSD','Oumarou','Tandja']
-
-    query_dict = {
-        'limit' : int(500000/len(query_list)),
-        'date' : '2020-01-01'
-    }
 
     buggy_list = ['Lumana']
 
-    print('Retrieving tweets based on query.....')
+    print('Retrieving tweets based on query with geo info.....')
     for near in near_list:
 
         print(near)

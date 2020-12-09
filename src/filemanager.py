@@ -2,10 +2,12 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import twint
-from crawlers import TweetSearcher, FollowerCounter, QueryRunner
+from crawlers import TweetSearcher, QueryRunner
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
+import seaborn as sns
+import geopandas as gpd
 
 # import inspect as i
 # import sys
@@ -209,5 +211,93 @@ def NetworkGraphMaker(
     return fig
 
 
+def BarDfMaker(
+        file_path: str,
+        df_gsheet,
+        name: str,
+        gs_name:str
+):
+    df = pd.read_table(file_path, sep=',')
+
+    print('Merging df with df_gsheet to define group assignment...')
+    df = df.merge(df_gsheet[[gs_name, 'préselection']], left_on=name, right_on=gs_name)
+
+    df['presel'] = 'Not selected'
+    df.loc[df['préselection'] == 1, 'presel'] = 'Pre-selected'
+
+    df['group'] = df['presel']
+    df.drop(['préselection', 'presel'], axis=1, inplace=True)
+
+    if gs_name !="tw_name":
+        df.drop(gs_name,axis=1, inplace=True)
+
+    return df
 
 
+def BarPlotter(
+        df,
+        name: str,
+        posts: str,
+        followers: str,
+        following: str,
+        platform: str,
+):
+    if platform == 'Twitter':
+        post = 'Tweets'
+        palette = 'Blues'
+    else:
+        post = 'Posts'
+        palette = 'Reds'
+
+    df.rename(
+        columns={followers: 'Followers', posts: post, following: 'Following'},
+        inplace=True)
+
+    melt_df = df.melt(id_vars=[name, 'group'], var_name='metric', value_name='count')
+
+    plt.style.use('ggplot')
+    plt.figure(figsize=(15, 10))
+
+    fig = sns.barplot(x='metric',
+                      y='count',
+                      data=melt_df,
+                      hue='group',
+                      palette=palette,
+                      ci=0)
+
+    # Save the plot
+    path_name = '/Users/bonaventurapacileo/Documents/Freelance/GeoA/figures/'
+    plot_name = platform + '_barplot.png'
+
+    plt.savefig(path_name + plot_name)
+    print('Barplot saved as {}'.format(plot_name))
+
+    return fig
+
+
+def ChoroplethMaker(df,left_on,column):
+
+
+    niger = gpd.read_file('/Users/bonaventurapacileo/Documents/Freelance/GeoA/src/maps/shape_files_niger/adm01.shp')
+
+
+    #choropleth
+    niger_df = gpd.GeoDataFrame(df.merge(niger,right_on='adm_01',left_on = left_on,how='outer'))
+
+    fig, ax = plt.subplots(1, 1)
+
+    niger_df.plot(ax=ax, column=column,cmap="autumn_r", scheme='natural_breaks',alpha=0.7,
+                  figsize=(35, 20),
+                  legend=True,
+                legend_kwds={
+                    'title':'Average {}'.format(column.replace('_mean',"")),
+            # 'labels': ["horizontal",'2','3','4','5'],
+                            'loc': "upper left"},
+                  linewidth=.1) #k for quantiles
+
+    # Save the plot
+    path_name = '/Users/bonaventurapacileo/Documents/Freelance/GeoA/figures/'
+    plot_name =  column + '_choropleth.png'
+
+    plt.savefig(path_name + plot_name)
+    print('Choropleth saved as {}'.format(plot_name))

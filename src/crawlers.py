@@ -1,9 +1,10 @@
 import twint
 import pandas as pd
 
+#conda update -n base -c defaults conda
 
 
-def FollowerCounter(
+def TwitterLookup(
         user:str,
         ind:int
 ):
@@ -15,9 +16,9 @@ def FollowerCounter(
 
     try:
         twint.run.Lookup(c)
-        return twint.output.users_list[ind].followers
+        return (twint.output.users_list[ind].tweets,twint.output.users_list[ind].followers,twint.output.users_list[ind].following)
     except ValueError:
-        return 0
+        return (0,0,0)
 
 
 def QueryRunner(
@@ -33,9 +34,9 @@ def QueryRunner(
              "username",
              "tweet",
              "urls",
-             "nreplies",
-             "nretweets",
-             "nlikes",
+             "replies_count", #nreplies
+             "retweets_count", #nretweets
+             "likes_count", #nlikes
              "hashtags",
              "link",
              'reply_to', #and then screen_name

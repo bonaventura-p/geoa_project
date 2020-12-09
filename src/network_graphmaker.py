@@ -28,7 +28,7 @@ print('Google Sheet converted to dataframe.....')
 print('Importing Twitter data and engineering features...')
 mention_df = pd.read_table('/Users/bonaventurapacileo/Documents/Freelance/GeoA/data/mention_reply_20201202.csv',
                            sep=',')
-follow_df = pd.read_table('/Users/bonaventurapacileo/Documents/Freelance/GeoA/data/follows_20201204.csv', sep=',')
+follow_df = pd.read_table('/Users/bonaventurapacileo/Documents/Freelance/GeoA/data/follows_20201207.csv', sep=',')
 
 follow_df['tw_followers_std'] = (follow_df['tw_followers'] - follow_df['tw_followers'].mean()) / follow_df[
     'tw_followers'].var() ** .5
@@ -63,7 +63,6 @@ print("Creating graph objects....")
 df_nodes, df_edges = GraphInputMaker(follow_df, mention_df.loc[mention_df['action'] == ind],
                                      'tw_name', 'group', 'tw_followers_std', 'author', 'target', 'invlogcnt_'+ind)
 G = GraphMaker(df_nodes, df_edges)
-
 
 df_nodes['nodesize'] = df_nodes['nodesize']*1000
 
