@@ -2,6 +2,7 @@
 .venv
 env/
 venv/
+virtualenv/
 keys/
 Contract/
 data/

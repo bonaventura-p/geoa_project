@@ -7,7 +7,13 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 import seaborn as sns
-import geopandas as gpd
+#import geopandas as gpd
+
+#import spacy
+#from spacy.lemmatizer import Lemmatizer
+#from spacy.lang.en.stop_words import STOP_WORDS
+# import fr_core_news_sm
+
 
 # import inspect as i
 # import sys
@@ -163,11 +169,12 @@ def NodeSizeMaker(G, df_nodes, k):
 #     return fig
 
 
-def NetworkGraphMaker(
+def NetworkPlotMaker(
         G,
         df_nodes,
         ind,
-        group_dict
+        group_dict,
+        label = True
 ):
     """
     Using the spring layout :
@@ -187,8 +194,24 @@ def NetworkGraphMaker(
 
     r = lambda: random.randint(0, 255)
 
-    fig = plt.figure(figsize=(15, 10))
-    ax = fig.add_subplot(1, 1, 1)
+    #fig = plt.figure(figsize=(15, 10))
+    #ax = fig.add_subplot(1, 1, 1)
+
+    plt.style.use('seaborn-whitegrid')
+
+    params = {'legend.fontsize': 'xx-large',
+              'figure.figsize': (15, 10),
+              'axes.labelsize': 'xx-large',
+              'axes.titlesize': 'xx-large',
+              'xtick.labelsize': 'xx-large',
+              'ytick.labelsize': 'xx-large',
+              'legend.title_fontsize': 'xx-large'
+              }
+
+    for key, val in params.items():
+        plt.rcParams[key] = val
+
+    fig, ax = plt.subplots(1,1)
 
     pos = nx.spring_layout(G)
 
@@ -196,14 +219,18 @@ def NetworkGraphMaker(
         nx.draw_networkx_nodes(G, ax=ax, pos=pos, node_size=df_nodes.loc[df_nodes['group'] == group, 'nodesize'],
                                nodelist=df_nodes.loc[df_nodes['group'] == group, 'name'],
                                node_color='#{:02x}{:02x}{:02x}'.format(r(), r(), r()), label=group_dict[group])
-
-    nx.draw_networkx_labels(G, pos, ax=ax, font_size=8, font_color='k', font_weight='regular')
+    if label:
+        nx.draw_networkx_labels(G, pos, ax=ax, font_size=8, font_color='k', font_weight='regular')
     nx.draw_networkx_edges(G, ax=ax, pos=pos, edge_color='#000000', width=1)
 
     ax.legend(markerscale=.25)
 
     path_name = '/Users/bonaventurapacileo/Documents/Freelance/GeoA/figures/'
-    plot_name = 'ntw_k'+ str(k) +ind + '.png'
+
+    if label:
+        plot_name = 'ntw_k'+ str(k) +ind + '.png'
+    else:
+        plot_name = 'nolntw_k'+ str(k) +ind + '.png'
 
     plt.savefig(path_name + plot_name)
     print('Network graph saved as {}'.format(plot_name))
@@ -234,45 +261,88 @@ def BarDfMaker(
     return df
 
 
-def BarPlotter(
-        df,
-        name: str,
-        posts: str,
-        followers: str,
-        following: str,
-        platform: str,
-):
-    if platform == 'Twitter':
-        post = 'Tweets'
-        palette = 'Blues'
-    else:
-        post = 'Posts'
-        palette = 'Reds'
+def BarPlotter(df,x,y,hue,plot_name,palette='Greens', **options):
 
-    df.rename(
-        columns={followers: 'Followers', posts: post, following: 'Following'},
-        inplace=True)
+    plt.style.use('seaborn-whitegrid')
 
-    melt_df = df.melt(id_vars=[name, 'group'], var_name='metric', value_name='count')
+    params = {'legend.fontsize': 'xx-large',
+              'figure.figsize': (15, 10),
+              'axes.labelsize': 'xx-large',
+              'axes.titlesize': 'xx-large',
+              'xtick.labelsize': 'xx-large',
+              'ytick.labelsize': 'xx-large',
+              'legend.title_fontsize': 'xx-large'}
 
-    plt.style.use('ggplot')
-    plt.figure(figsize=(15, 10))
+    for k, v in params.items():
+        plt.rcParams[k] = v
 
-    fig = sns.barplot(x='metric',
-                      y='count',
-                      data=melt_df,
-                      hue='group',
-                      palette=palette,
-                      ci=0)
+    fig, ax = plt.subplots(1, 1)
+
+    sns.barplot(ax=ax, x=x,
+                y=y,
+                data=df,
+                hue=hue,
+                palette=palette,
+                ci=0)
 
     # Save the plot
     path_name = '/Users/bonaventurapacileo/Documents/Freelance/GeoA/figures/'
-    plot_name = platform + '_barplot.png'
+    plot_name = '{}.png'.format(plot_name)
 
     plt.savefig(path_name + plot_name)
     print('Barplot saved as {}'.format(plot_name))
 
-    return fig
+
+# def BarPlotter(
+#         df,
+#         name: str,
+#         posts: str,
+#         followers: str,
+#         following: str,
+#         platform: str,
+# ):
+#     if platform == 'Twitter':
+#         post = 'Tweets'
+#         palette = 'Blues'
+#     else:
+#         post = 'Posts'
+#         palette = 'Reds'
+#
+#     df.rename(
+#         columns={followers: 'Followers', posts: post, following: 'Following'},
+#         inplace=True)
+#
+#     melt_df = df.melt(id_vars=[name, 'group'], var_name='metric', value_name='count')
+#
+#     plt.style.use('seaborn-whitegrid')
+#     params = {'legend.fontsize': 'xx-large',
+#               'figure.figsize': (15, 10),
+#               'axes.labelsize': 'xx-large',
+#               'axes.titlesize': 'xx-large',
+#               'xtick.labelsize': 'xx-large',
+#               'ytick.labelsize': 'xx-large',
+#               'legend.title_fontsize':'xx-large'}
+#
+#     for k, v in params.items():
+#         plt.rcParams[k] = v
+#
+#     fig, ax = plt.subplots(1,1)
+#
+#     sns.barplot(ax=ax,x='metric',
+#                       y='count',
+#                       data=melt_df,
+#                       hue='group',
+#                       palette=palette,
+#                       ci=0)
+#
+#     # Save the plot
+#     path_name = '/Users/bonaventurapacileo/Documents/Freelance/GeoA/figures/'
+#     plot_name = platform + '_barplot.png'
+#
+#     plt.savefig(path_name + plot_name)
+#     print('Barplot saved as {}'.format(plot_name))
+#
+#     return fig
 
 
 def ChoroplethMaker(df,left_on,column):
@@ -283,6 +353,19 @@ def ChoroplethMaker(df,left_on,column):
 
     #choropleth
     niger_df = gpd.GeoDataFrame(df.merge(niger,right_on='adm_01',left_on = left_on,how='outer'))
+
+    plt.style.use('seaborn-whitegrid')
+
+    params = {'legend.fontsize': 'xx-large',
+              'figure.figsize': (15, 10),
+              'axes.labelsize': 'xx-large',
+              'axes.titlesize': 'xx-large',
+              'xtick.labelsize': 'xx-large',
+              'ytick.labelsize': 'xx-large',
+              'legend.title_fontsize': 'xx-large'}
+
+    for k, v in params.items():
+        plt.rcParams[k] = v
 
     fig, ax = plt.subplots(1, 1)
 
@@ -301,3 +384,110 @@ def ChoroplethMaker(df,left_on,column):
 
     plt.savefig(path_name + plot_name)
     print('Choropleth saved as {}'.format(plot_name))
+
+
+# def Lemmatizer(doc):
+#     '''input: doc of tokens from tagger+parser,
+#         output: lemmatised doc of tokens'''
+#
+#     nlp = fr_core_news_sm.load()
+#
+#     doc = [token.lemma_.lower().strip() for token in doc if token.lemma_ != '-PRON-']
+#     doc = u' '.join(doc)
+#     return nlp.make_doc(doc)
+#
+#
+# def LemmaCleaner(doc):
+#     '''input: doc of tokens from lemmatiser
+#         output:  tokens without punctuation/stopwords/numbers and length>1'''
+#     doc = [token.text for token in doc if token.is_stop != True and token.is_alpha == True and len(token.text) > 1]
+#     return doc
+
+def LemmaCleaner(doc):
+    '''input: doc of tokens from lemmatiser
+        output:  tokens without punctuation/stopwords/numbers and length>1'''
+    doc = [token.lemma_.lower().strip() for token in doc if token.is_stop != True and token.is_alpha == True and len(token.text) > 1 and token.lemma_ != '-PRON-']
+    # doc = u' '.join(doc)
+    return doc
+
+def Tokenizer(docs):
+    '''input: list of docs
+    output: list of list of tokens cleaned by spacy pipeline'''
+    nlp = fr_core_news_sm.load()
+
+    # My list of stop words.
+    stop_list = ["qu", " ", "  "]
+
+    # Updates spaCy's default stop words list with my additional words.
+    nlp.Defaults.stop_words.update(stop_list)
+
+    # customise pipeline
+    nlp.remove_pipe("ner")
+    # nlp.add_pipe(Lemmatizer, name='Lemmatizer', after='parser')
+    nlp.add_pipe(LemmaCleaner, name="LemmaCleaner", last=True)
+
+    doc_list = []
+
+    i = 0
+
+    for doc in docs:
+        print("Doc {}/{}".format(i,len(docs)))
+
+        token = nlp(doc)
+        doc_list.append(token)
+
+        i += 1
+
+    return doc_list
+
+
+def TopicsRunner(cluster_word_distribution, top_cluster, values):
+    '''input:cluster_word_distribution from mgp, index of top clusters, values to retrieve
+    output: topics with keywords'''
+
+    for cluster in top_cluster:
+        sort_dicts = sorted(mgp.cluster_word_distribution[cluster].items(), key=lambda k: k[1], reverse=True)[:values]
+        print('Topic %s : %s'%(cluster,sort_dicts))
+        print(' — — — — — — — — — ')
+#
+# def TopWordsPlotter(cluster_word_distribution, top_cluster, values):
+#     '''input:cluster_word_distribution from mgp, index of top clusters, values to retrieve
+#     output: barplot of words by topics, dict for wordcloud'''
+#     legend_list = []
+#     sort_dict_keeper = []
+#     for cluster in top_cluster:
+#         sort_dicts = sorted(mgp.cluster_word_distribution[cluster].items(), key=lambda k: k[1], reverse=True)[:values]
+#         sort_dict_keeper.extend(sort_dicts)
+#         plt.bar(*zip(*sort_dicts))
+#
+#         legend_list.append("Topic " + str(cluster))
+#     plt.xticks(rotation=90)
+#     plt.title('Most frequent words across topics', fontSize=23)
+#     plt.legend(legend_list)
+#     return sort_dict_keeper
+
+
+def TopWordsPlotter(cluster_word_distribution, top_cluster, values):
+    '''input:cluster_word_distribution from mgp, index of top clusters, values to retrieve
+    output: barplot of words by topics, dict for wordcloud'''
+    legend_list = []
+    sort_dict_keeper = []
+    fig, ax = plt.subplots(figsize=(20,10))
+
+    for cluster in top_cluster:
+        sort_dicts = sorted(cluster_word_distribution[cluster].items(), key=lambda k: k[1], reverse=True)[:values]
+        sort_dict_keeper.extend(sort_dicts)
+        if len(sort_dicts) != 0:
+            bar = ax.bar(*zip(*sort_dicts))
+            legend_list.append("Topic " + str(cluster))
+        else:
+            pass
+
+    plt.xticks(rotation=90, fontSize = 16)
+    plt.yticks(fontSize = 16)
+    plt.title('Most frequent words across topics', fontSize=23)
+    plt.legend(legend_list)
+    #plt.show()
+    plt.savefig('images/GDSMM_words.png')
+
+    return sort_dict_keeper

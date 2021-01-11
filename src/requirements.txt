@@ -13,3 +13,6 @@ geopandas
 rtree
 mapclassify
 spacy
+gensim
+wordcloud
+plotly

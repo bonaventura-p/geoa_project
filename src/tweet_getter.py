@@ -40,7 +40,7 @@ if arg1 == 'u':
     buggy_list = ['@IyoNoma']
     user_list = df_gsheet.tw_name
     n_users = 500
-    UsersTweetFetcher(user_list=df_gsheet.tw_name,buggy_list=buggy_list,n_users=500,store_csv=True)
+    UsersTweetFetcher(user_list=user_list,buggy_list=buggy_list,n_users=500,store_csv=True) #
 
 
 if arg1 == 'q':
